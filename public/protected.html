@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ruta Protegida</title>
+  </head>
+  <body>
+    <h1>Ruta protegida</h1>
+    <div>
+      <div id="app">Email:</div>
+      <button id="logout">Cerrar session</button>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", async (e) => {
+        try {
+          const resToken = await fetch("/api/v1/refresh", {
+            method: "GET",
+            credentials: "include",
+          });
+
+          const { token } = await resToken.json();
+          // const token = localStorage.getItem('token')
+          const res = await fetch("/api/v1/protected", {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log(res.ok, res.status);
+          const data = await res.json();
+
+          if (res.ok) {
+            document.getElementById("app").textContent = data.email;
+          } else {
+            document.getElementById("app").textContent = "el no ok";
+          }
+          // console.log(data)
+        } catch (error) {
+          console.log("el error" + error);
+        }
+      });
+      const logout = document.getElementById("logout");
+      logout.addEventListener("click", async() =>{
+            const res= await fetch("/api/v1/logout", {
+                method: "GET",
+            })
+            console.log(res);
+      })
+    </script>
+  </body>
+</html>

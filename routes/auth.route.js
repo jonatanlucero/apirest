@@ -1,19 +1,18 @@
 //express tiene un middleware especializado para trabajar con rutas
-import express from "express";
-import { login, register } from "../controllers/auth.controller.js";
+import{ Router } from "express";
+import { infoUser, login, logout, refreshToken, register } from "../controllers/auth.controller.js";
 import { body } from "express-validator";
 import { myValidationResult } from "../middlewares/myValidationResult.js";
+import { requireToken } from "../middlewares/requireToken.js";
 
-const router = express.Router();
+const router = Router();
 
 router.post("/login",[
   body("email", "Email ingresado no valido")
   .trim()
   .isEmail(),
   body("password", "Formato de email incorrecto")
-  .trim()
-  .isEmail()
-  .normalizeEmail(),
+  .trim(),
 ],
 myValidationResult,
 login);
@@ -41,5 +40,11 @@ router.post(
   myValidationResult,
   register
 );
+
+router.get('/protected', requireToken, infoUser)
+
+router.get('/refresh', refreshToken)
+
+router.get('/logout', logout)
 
 export default router;
